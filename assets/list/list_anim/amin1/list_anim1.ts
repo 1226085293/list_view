@@ -27,30 +27,18 @@ export default class list_anim1 extends list_anim_base {
             return;
         }
         if (touch_b_) {
-            // ----------------初始化
             if (!this._item_o.parent) {
                 this.list_o.content.addChild(this._item_o);
-                switch (dire_e_) {
-                    case list_view.dire.top: {
-                        if (!this._over_b) {
-                            this._item_o.setPosition(0, this._item_o.height * 0.5);
-                            this._item_o.child("prompt_text").label.string = "下拉刷新";
-                        }
-                    } break;
-                    case list_view.dire.bottom: {
-                        this._item_o.setPosition(0, -this.list_o.content.height - this._item_o.height * 0.5);
-                        if (!this._over_b) {
-                            this._item_o.child("prompt_text").label.string = "上拉刷新";
-                        }
-                    } break;
-                }
+                this._item_o.active = false;
             }
             // ----------------更新
             else {
                 switch (dire_e_) {
                     case list_view.dire.top: {
+                        cc.log(this._update_e);
                         switch (this._update_e) {
                             case list_view.dire.null: {
+                                this._item_o.setPosition(0, this._item_o.height * 0.5);
                                 this._item_o.child("prompt_text").label.string = dist_n_ < this._item_o.height ? "下拉刷新" : "松开刷新";
                             } break;
                             case list_view.dire.top: {
@@ -62,6 +50,7 @@ export default class list_anim1 extends list_anim_base {
                         switch (this._update_e) {
                             case list_view.dire.null: {
                                 if (!this._over_b) {
+                                    this._item_o.setPosition(0, -this.list_o.content.height - this._item_o.height * 0.5);
                                     this._item_o.child("prompt_text").label.string = dist_n_ < this._item_o.height ? "上拉刷新" : "松开刷新";
                                 }
                             } break;
@@ -71,6 +60,7 @@ export default class list_anim1 extends list_anim_base {
                         }
                     } break;
                 }
+                this._item_o.active = true;
             }
         } else {
             // ----------------清理
@@ -115,7 +105,6 @@ export default class list_anim1 extends list_anim_base {
                 this._add_bottom_n = 0;
                 this.list_o.content.layout.paddingTop -= this._add_top_n;
                 this._add_top_n = 0;
-                this._item_o.removeFromParent();
             }
             case list_anim_base.finish_type.update: {
                 cc.log("更新动画结束");
@@ -133,6 +122,7 @@ export default class list_anim1 extends list_anim_base {
                 }
             } break;
         }
+        this._item_o.removeFromParent();
         this._list_o.refresh_item();
     }
 }
