@@ -147,11 +147,21 @@ export class list_view<T> extends cc.Component {
     public reset_size(): void {
         if (!this.node.scroll_view.horizontal && this.node.scroll_view.vertical) {
             // content高度 = paddingTop + data_n * (item高度 + spacingY) - spacingY + paddingBottom;
-            let temp1_n = this._content_o.y;
-            this._content_o.height = this._content_o.layout.paddingTop + this._content_o.layout.paddingBottom + this.data_as.length * (this.item_o.data.height + this._content_o.layout.spacingY) - this._content_o.layout.spacingY;
+            let temp1_n = this._content_o.y, temp2_n = this._content_o.height;
+            this._content_o.height = this._content_o.layout.paddingTop + this._content_o.layout.paddingBottom + this.data_as.length * (this.item_o.data.height + this._content_o.layout.spacingY) - (this.data_as.length > 1 ? this._content_o.layout.spacingY : 0);
+            // 如果content y坐标超出则收回
+            if (this._content_o.height < temp2_n) {
+                temp1_n -= temp2_n - this._content_o.height;
+            }
+            if (temp1_n < this._view_o.height * 0.5) {
+                temp1_n = this._view_o.height * 0.5;
+            }
             this._content_o.y = temp1_n;
             // 更新item首尾间隔
             this._interval_n = this._item_os.length * (this.item_o.data.height + this._content_o.layout.spacingY);
+            if (this._content_o.height < this._view_o.height) {
+                this.node.scroll_view.scrollToTop();
+            }
         }
     }
     /**刷新item */
@@ -162,8 +172,6 @@ export class list_view<T> extends cc.Component {
         // ------------------计算生成数量
         let generate_n = 1;
         if (!this.node.scroll_view.horizontal && this.node.scroll_view.vertical) {
-            // 删除节点后新增节点
-            // generate_n += Math.ceil((this._view_o.height - (this._content_o.layout.paddingTop + this._content_o.layout.paddingBottom) + this._content_o.layout.spacingY) / (this.item_o.data.height + this._content_o.layout.spacingY));
             generate_n += Math.ceil((this._view_o.height + this._content_o.layout.spacingY) / (this.item_o.data.height + this._content_o.layout.spacingY));
         }
         if (generate_n > this.data_as.length) {
@@ -188,17 +196,26 @@ export class list_view<T> extends cc.Component {
             }
         }
         // ------------------重置item数据
+        this.reset_size();
+        // 更新坐标;
+        // cc.log("y: ", self._content_o.y);
+        temp1_n = this._content_o.y - this._view_o.height * 0.5;
+        temp1_n -= this._content_o.layout.paddingTop;
+        temp1_n = Math.floor(temp1_n / (this._content_o.layout.spacingY + this.item_o.data.height));
+        temp1_n = temp1_n > 0 ? temp1_n - 1 : 0;
+        cc.log(temp1_n);
         this._item_os.forEach((v1_o, k1_n)=> {
             // 更新数据
             temp2_o = v1_o.component(item_base);
-            if (temp2_o.index_n < 0) {
-                temp2_o.index_n = k1_n;
+            if (!temp2_o) {
+                cc.error(`${v1_o.name} 没有继承item_base的组件`);
+                return;
             }
-            // 更新坐标
-            temp2_o.refresh(this.data_as[temp2_o.index_n]);
+            // ------------------重置
+            temp2_o.index_n = temp1_n + k1_n;
             v1_o.y = -this._content_o.layout.paddingTop - temp2_o.index_n * this.item_o.data.height - temp2_o.index_n * this._content_o.layout.spacingY - this.item_o.data.height * 0.5;
+            temp2_o.refresh(this.data_as[temp2_o.index_n])
         });
-        this.reset_size();
     }
     /**刷新数据 */
     public refresh_data(): void {
@@ -226,6 +243,10 @@ export class list_view<T> extends cc.Component {
         let temp1_n: number;
         let temp1_o: item_base<any>;
         if (!this.node.scroll_view.horizontal && this.node.scroll_view.vertical) {
+            // 无数据不更新
+            if (!this.data_as.length) {
+                return;
+            }
             let top_n = this._content_o.y - this._view_o.height * 0.5;
             let bottom_n = this._content_o.y + this._view_o.height * 0.5;
             // 向上滑动
@@ -276,6 +297,10 @@ export class list_view<T> extends cc.Component {
     }
     /**更新当前状态 */
     private _update_state(touch_b_: boolean): void {
+        // 无数据不更新
+        if (!this.data_as.length) {
+            return;
+        }
         let temp1_b: boolean;
         if (!this.node.scroll_view.horizontal && this.node.scroll_view.vertical) {
             let top_n = this._view_o.height * 0.5 - this._content_o.y;
@@ -348,7 +373,7 @@ export class list_view<T> extends cc.Component {
         }
     }
     public set over(v_b_: boolean) {
-        v_b_ && this.anim_o.finish_notice(list_anim_base.finish_type.over);
+        this.anim_o.finish_notice(v_b_ ? list_anim_base.finish_type.over : list_anim_base.finish_type.reset);
     }
 }
 

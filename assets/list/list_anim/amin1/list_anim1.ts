@@ -86,7 +86,7 @@ export default class list_anim1 extends list_anim_base {
                         // 更新视图
                         this.list_o.content.layout.paddingBottom += this._add_bottom_n = this._item_o.height;
                         (<any>this.list_o)._outOfBoundaryAmount.y += this._item_o.height;
-                        this._list_o.refresh_item();
+                        this._list_o.reset_size();
                         return true;
                     }
                 } break;
@@ -105,7 +105,11 @@ export default class list_anim1 extends list_anim_base {
                 this._add_bottom_n = 0;
                 this.list_o.content.layout.paddingTop -= this._add_top_n;
                 this._add_top_n = 0;
+                this._item_o.removeFromParent();
+                this._list_o.refresh_item();
             }
+        }
+        switch (type_e_) {
             case list_anim_base.finish_type.update: {
                 cc.log("更新动画结束");
                 this._update_e = list_view.dire.null;
@@ -118,11 +122,9 @@ export default class list_anim1 extends list_anim_base {
             case list_anim_base.finish_type.over: {
                 if (!this._over_b) {
                     this._over_b = true;
-                    this._item_o.child("prompt_text").label.string = "没有更多数据了...";
+                    this._item_o.child("prompt_text").label.string = "已拉取完成";
                 }
             } break;
         }
-        this._item_o.removeFromParent();
-        this._list_o.refresh_item();
     }
 }
