@@ -18,10 +18,11 @@ export default class NewClass extends cc.Component {
     public event_reset_list(): void {
         this.scheduleOnce(()=> {
             let data_as = [];
-            for (let k1_n = 0; k1_n < 10; ++k1_n) {
+            for (let k1_n = 0; k1_n < 5; ++k1_n) {
                 data_as.push(k1_n);
             }
             this.list.data_as = data_as;
+            this.list.over_b = true;
         }, 2);
     }
     /**获取下页数据 */

@@ -303,6 +303,7 @@ export class list_view<T> extends cc.Component {
         }
         let temp1_b: boolean;
         if (!this.node.scroll_view.horizontal && this.node.scroll_view.vertical) {
+            // ------------------准备参数
             let top_n = this._view_o.height * 0.5 - this._content_o.y;
             let bottom_n = this._content_o.y + this._view_o.height * 0.5 - this._content_o.height;
             // ------------------更新当前状态
@@ -372,7 +373,7 @@ export class list_view<T> extends cc.Component {
             this._state_e = v_e_;
         }
     }
-    public set over(v_b_: boolean) {
+    public set over_b(v_b_: boolean) {
         this.anim_o.finish_notice(v_b_ ? list_anim_base.finish_type.over : list_anim_base.finish_type.reset);
     }
 }
